@@ -6,9 +6,9 @@ A REST API for the OpenGraph Protocol using Node.js and MongoDB.
 The REST API implements the following methods:
 
 `GET /api` - Returns the status of the API.  
-`GET /api/check` - Checks the pages which are submitted via their URL for OpenGraph tags.  
-`GET /api/insert` - Inserts a document in the MongoDB database.  
-`GET /api/find` - Searches for some OpenGraph objects from the MongoDB database.  
+`POST /api/check` - Checks the pages which are submitted via their URL for OpenGraph tags.  
+`POST /api/insert` - Inserts a document in the MongoDB database.  
+`POST /api/find` - Searches for some OpenGraph objects from the MongoDB database.  
 `GET /api/find_all` - Searches for all the OpenGraph objects from the MongoDB database.  
 
 ##REST functions
@@ -158,7 +158,7 @@ curl -X POST -H 'Content-Type: application/json' -d '{"og:title": "Page Title"}'
 ```
 
 
-####find_all - `POST /api/find_all`
+####find_all - `GET /api/find_all`
 
 This function searches for all the OpenGraph objects from the MongoDB database, and returns them.
 
