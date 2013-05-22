@@ -1,15 +1,15 @@
 nodegraph
 =========
 
-A REST API for the OpenGraph Protocol using Node.js and MongoDB.
+A REST API for the Open Graph Protocol using Node.js and MongoDB.
 
 The REST API implements the following methods:
 
 `GET /api` - Returns the status of the API.  
-`POST /api/check` - Checks the pages which are submitted via their URL for OpenGraph tags.  
+`POST /api/check` - Checks the pages which are submitted via their URL for Open Graph tags.  
 `POST /api/insert` - Inserts a document in the MongoDB database.  
-`POST /api/find` - Searches for some OpenGraph objects from the MongoDB database.  
-`GET /api/find_all` - Searches for all the OpenGraph objects from the MongoDB database.  
+`POST /api/find` - Searches for some Open Graph objects from the MongoDB database.  
+`GET /api/find_all` - Searches for all the Open Graph objects from the MongoDB database.  
 
 ##REST functions
 
@@ -36,7 +36,7 @@ curl -i -X GET http://yourhost:3000/api
 
 ####check - `POST /api/check`
 
-Checks the pages which are submitted via their URL for OpenGraph tags.
+Checks the pages which are submitted via their URL for Open Graph tags.
 
 The information will be fetched from the above mentioned URL, the meta tags of prefix "og" will be extracted,
 and returned in the form of a JSON object.
@@ -112,7 +112,7 @@ curl -X POST -d url=http://example.org/page.html http://yourhost:3000/api/insert
 
 ####find - `POST /api/find`
 
-This function searches for some OpenGraph objects from the MongoDB database and returns them.
+This function searches for some Open Graph objects from the MongoDB database and returns them.
 
 The information will be fetched from the above mentioned URL, the meta tags of prefix "og" will be extracted,
 and stored in the MongoDB database, and returned in the form of a similar JSON object.
@@ -160,7 +160,7 @@ curl -X POST -H 'Content-Type: application/json' -d '{"og:title": "Page Title"}'
 
 ####find_all - `GET /api/find_all`
 
-This function searches for all the OpenGraph objects from the MongoDB database, and returns them.
+This function searches for all the Open Graph objects from the MongoDB database, and returns them.
 
 The information will be fetched from the above mentioned URL, the meta tags of prefix "og" will be extracted,
 and stored in the MongoDB database, and returned in the form of a similar JSON object.
