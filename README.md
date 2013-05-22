@@ -31,7 +31,7 @@ returns:
 
 #####How-to example with cURL
 ```
-curl -i -X GET http://yourhost:3000/api
+curl -X GET http://yourhost:3000/api
 ```
 
 ####check - `POST /api/check`
@@ -207,4 +207,27 @@ sample response:
 #####How-to example with cURL
 ```
 curl -X GET http://yourhost:3000/api/find_all
+```
+
+####Examples using the files provided in the `/static` folder
+Go to the `nodegraph` folder and enter the following command:
+
+```
+nodejs app.js
+```
+You can then test whether everything works fine using cURL and the following examples:
+```
+curl -X POST -d url=http://localhost:3000/static/hyperion.html http://localhost:3000/api/check
+curl -X POST -d url=http://localhost:3000/static/dansimmons.html http://localhost:3000/api/check
+```
+```
+curl -X POST -d url=http://localhost:3000/static/hyperion.html http://localhost:3000/api/insert
+curl -X POST -d url=http://localhost:3000/static/dansimmons.html http://localhost:3000/api/insert
+```
+```
+curl -X POST -H 'Content-Type: application/json' -d '{"og:title": "Hyperion"}' http://localhost:3000/api/find
+curl -X POST -H 'Content-Type: application/json' -d '{"og:profile:first_name": "Dan", "og:profile:last_name": "Simmons"}' http://localhost:3000/api/find
+```
+```
+curl -X GET http://localhost:3000/api/find_all
 ```
