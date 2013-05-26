@@ -11,20 +11,20 @@ The REST API implements the following methods:
 `POST /api/find` - Searches for some Open Graph objects from the MongoDB database.  
 `GET /api/find_all` - Searches for all the Open Graph objects from the MongoDB database.  
 
-##Errors
+###Errors
 
 ```
-404: the specified function does not exist.  
-405: the method used to access the specified function is not allowed.
+404 - the specified function does not exist.
+405 - the method used to access the specified function is not allowed.
 ```
 
-##REST functions
+###REST functions
 
 ####api - `GET /api`
 
 Returns the status of the API.
 
-####Description
+#####Description
 ```
 url:		http://yourhost:3000/api
 method:		GET
@@ -222,7 +222,7 @@ sample response:
 curl -X GET http://yourhost:3000/api/find_all
 ```
 
-####Examples using the files provided in the `/static` folder
+###Examples using the files provided in the `/static` folder
 Go to the `nodegraph` folder and enter the following command:
 
 ```
@@ -243,4 +243,36 @@ curl -X POST -H 'Content-Type: application/json' -d '{"og:profile:first_name": "
 ```
 ```
 curl -X GET http://localhost:3000/api/find_all
+```
+
+###Error examples
+####404 - the specified function does not exist.
+```
+curl -X GET http://localhost:3000/api/null
+```
+Returns:
+```
+{
+  "nodegraph": {
+    "status": "ERROR",
+    "url": "/api/null",
+    "method": "GET",
+    "error_code": 404
+  }
+}
+```
+####405 - the method used to access the specified function is not allowed.
+```
+curl -X POST http://localhost:3000/api
+```
+Returns:
+```
+{
+  "nodegraph": {
+    "status": "ERROR",
+    "url": "/api",
+    "method": "POST",
+    "error_code": 405
+  }
+}
 ```

@@ -34,45 +34,58 @@ app.get ('/', function(request, response) {
 
 // Enabling GET method for the /api function
 app.get ('/api', function(request, response) {
-    response.json ({nodegraph: {status: "OK"}});
+    response.json ({"nodegraph": {status: "OK"}});
 });
 // Landing error code for method not allowed
 app.all ('/api', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+    _send_error (request, response, 405);
 });
 
 // Enabling the route for the /api/check function
 app.post ('/api/check', api.rest_check);
 // Landing error code for method not allowed
-app.all ('/api/check', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+app.all ('/api/check', function(request, response) {
+    _send_error (request, response, 405);
 });
 
 // Enabling the route for the /api/insert function
 app.post ('/api/insert', api.rest_insert);
 // Landing error code for method not allowed
-app.all ('/api/insert', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+app.all ('/api/insert', function(request, response) {
+    _send_error (request, response, 405);
 });
 
 // Enabling the route for the /api/find function
 app.post ('/api/find', api.rest_find);
 // Landing error code for method not allowed
-app.all ('/api/find', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+app.all ('/api/find', function(request, response) {
+    _send_error (request, response, 405);
 });
 
 // Enabling the route for /api/find_all function
 app.get ('/api/find_all', api.rest_find_all);
 // Landing error code for method not allowed
-app.all ('/api/find_all', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+app.all ('/api/find_all', function(request, response) {
+    _send_error (request, response, 405);
 });
 
 // Default landing error code
-app.all ('*', function(request, response){
-    response.json ({nodegraph: {"status": "ERROR", "error_code": 404}}, 404);
+app.all ('*', function(request, response) {
+    _send_error (request, response, 404);
 });
+
+// Returns a standard HTTP error
+function _send_error (request, response, error_code) {
+	response.json (
+				{
+					"nodegraph": {
+						"status": "ERROR",
+						"url": request.url,
+						"method": request.method,
+						"error_code": error_code
+					}
+				}, error_code);
+}
 
 // User custom parameters
 var app_port = 3000
