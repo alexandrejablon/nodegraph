@@ -36,22 +36,42 @@ app.get ('/', function(request, response) {
 app.get ('/api', function(request, response) {
     response.json ({nodegraph: {status: "OK"}});
 });
+// Landing error code for method not allowed
+app.all ('/api', function(request, response){
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+});
 
 // Enabling the route for the /api/check function
 app.post ('/api/check', api.rest_check);
+// Landing error code for method not allowed
+app.all ('/api/check', function(request, response){
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+});
 
 // Enabling the route for the /api/insert function
 app.post ('/api/insert', api.rest_insert);
+// Landing error code for method not allowed
+app.all ('/api/insert', function(request, response){
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+});
 
 // Enabling the route for the /api/find function
 app.post ('/api/find', api.rest_find);
+// Landing error code for method not allowed
+app.all ('/api/find', function(request, response){
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+});
 
 // Enabling the route for /api/find_all function
 app.get ('/api/find_all', api.rest_find_all);
+// Landing error code for method not allowed
+app.all ('/api/find_all', function(request, response){
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 405}}, 405);
+});
 
 // Default landing error code
 app.all ('*', function(request, response){
-    response.send ("Not found.", 404);
+    response.json ({nodegraph: {"status": "ERROR", "error_code": 404}}, 404);
 });
 
 // User custom parameters

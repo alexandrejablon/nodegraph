@@ -11,6 +11,13 @@ The REST API implements the following methods:
 `POST /api/find` - Searches for some Open Graph objects from the MongoDB database.  
 `GET /api/find_all` - Searches for all the Open Graph objects from the MongoDB database.  
 
+##Errors
+
+```
+404: the specified function does not exist.  
+405: the method used to access the specified function is not allowed.
+```
+
 ##REST functions
 
 ####api - `GET /api`

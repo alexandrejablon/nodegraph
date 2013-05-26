@@ -29,28 +29,13 @@ var mongo = require('mongodb');
 var server;
 var db;
 
-// Create standard error response
-function error_response (request, response, _function, error_msg, query) {
-	var json_response = {
-		nodegraph: {
-			"status": "ERROR",
-		}
-	}
-	json_response ["nodegraph"] [_function] = {
-		"status": "ERROR",
-		"query": query,
-		"error": error_msg
-	};
-	response.json (json_response);
-}
-
 // Start of the functions for the REST API
 //
 // Checks the resource at the specified URL for Open Graph metadata
 function rest_check (request, response) {
-    get_xml_from_url(request.body.url, function(error, xml_result) {
+    _get_xml(request.body.url, function(error, xml_result) {
         if (!error) {
-            parse_xml (xml_result, function (error, json_result) {
+            _parse_xml (xml_result, function (error, json_result) {
                 if (!error) {
                     response.json ({
                         nodegraph: {
@@ -63,126 +48,141 @@ function rest_check (request, response) {
                         }
                     });
                 } else {
-					console.error (error);
-					error_response (request, response, "check", error, request.body.url);
+                    console.error (error);
+                    _send_error (request, response, "check", error, request.body.url);
                 }
             });
         } else {
-			console.error (error);
-			error_response (request, response, "check", error, request.body.url);
+            console.error (error);
+            _send_error (request, response, "check", error, request.body.url);
         }
     });
 }
 
 // Gets the XML tags at the target URL, parses them, and inserts them in the Database
 function rest_insert (request, response) {
-    get_xml_from_url(request.body.url, function(error, xml_result) {
+    _get_xml (request.body.url, function(error, xml_result) {
         if (!error) {
-            parse_xml (xml_result, function (error, json_result) {
+            _parse_xml (xml_result, function (error, json_result) {
                 if (!error) {
-					insert_from_json (json_result, function (error, mongo_result) {
-						if (!error) {
-							response.json ({
-								nodegraph: {
-									status: "OK",
-									insert: {
-										status: "OK",
-										url: request.body.url,
-										rested: mongo_result
-									}
-								}
-							});
-						} else {
-							console.error (error);
-							error_response (request, response, "insert", ["An error occured while trying to insert the document in the database.", error], request.body.url);
-						}
-					});
+                    _insert_document (json_result, function (error, mongo_result) {
+                        if (!error) {
+                            response.json ({
+                                nodegraph: {
+                                    status: "OK",
+                                    insert: {
+                                        status: "OK",
+                                        url: request.body.url,
+                                        rested: mongo_result
+                                    }
+                                }
+                            });
+                        } else {
+                            console.error (error);
+                            _send_error (request, response, "insert", ["An error occured while trying to insert the document in the database.", error], request.body.url);
+                        }
+                    });
                 } else {
                     console.error (error);
-                    error_response (request, response, "insert", ["An error occured while trying to parse content of the requested URL.", error], request.body.url);
+                    _send_error (request, response, "insert", ["An error occured while trying to parse content of the requested URL.", error], request.body.url);
                 }
             });
         } else {
-			console.error (error);
-			error_response (request, response, "insert", "An error occured while trying to get the requested URL.", request.body.url);
+            console.error (error);
+            _send_error (request, response, "insert", "An error occured while trying to get the requested URL.", request.body.url);
         }
     });
 }
 
 // Returns a JSON object containing the results of the query
 function rest_find (request, response) {
-	db_start (function (error, db) {
-		if (!error) {
-			db.collection("ogObject", function(error, collection) {
-				if (!error) {
-					collection.find(request.body).toArray(function(error, items) {
-						if (!error) {
-							response.json ({
-								nodegraph: {
-									status: "OK",
-									find: {
-										status: "OK",
-										query: request.body,
-										rested: items
-									}
-								}
-							});
-						} else {
-							console.log (error);
-							error_response (request, response, "find", error, request.body);
-						}
-					});
-				} else {
-					console.error (error);
-					error_response (request, response, "find", error, request.body);
-				}
-			});
-		} else {
-			console.error (error);
-			error_response (request, response, "find", error, request.body);
+    _db_start (function (error, db) {
+        if (!error) {
+            db.collection("ogObject", function(error, collection) {
+                if (!error) {
+                    collection.find(request.body).toArray(function(error, items) {
+                        if (!error) {
+                            response.json ({
+                                nodegraph: {
+                                    status: "OK",
+                                    find: {
+                                        status: "OK",
+                                        query: request.body,
+                                        rested: items
+                                    }
+                                }
+                            });
+                        } else {
+                            console.log (error);
+                            _send_error (request, response, "find", error, request.body);
+                        }
+                    });
+                } else {
+                    console.error (error);
+                    _send_error (request, response, "find", error, request.body);
+                }
+            });
+        } else {
+            console.error (error);
+            _send_error (request, response, "find", error, request.body);
         }
-	});
+    });
 }
 
 // Returns all the objects in the database
 function rest_find_all (request, response) {
-	db_start (function (error, db) {
-		if (!error) {
-			db.collection("ogObject", function(error, collection) {
-				if (!error) {
-					collection.find().toArray(function(error, items) {
-						if (!error) {
-							response.json ({
-								nodegraph: {
-									status: "OK",
-									find_all: {
-										status: "OK",
-										rested: items
-									}
-								}
-							});
-						} else {
-							console.error (error);
-							error_response (request, response, "find_all", error, null);
-						}
-					});
-				} else {
-					console.error (error);
-					error_response (request, response, "find_all", error, null);
-				}
-			});
-		} else {
-			console.error (error);
-			error_response (request, response, "find_all", error, null);
+    _db_start (function (error, db) {
+        if (!error) {
+            db.collection("ogObject", function(error, collection) {
+                if (!error) {
+                    collection.find().toArray(function(error, items) {
+                        if (!error) {
+                            response.json ({
+                                nodegraph: {
+                                    status: "OK",
+                                    find_all: {
+                                        status: "OK",
+                                        rested: items
+                                    }
+                                }
+                            });
+                        } else {
+                            console.error (error);
+                            _send_error (request, response, "find_all", error, null);
+                        }
+                    });
+                } else {
+                    console.error (error);
+                    _send_error (request, response, "find_all", error, null);
+                }
+            });
+        } else {
+            console.error (error);
+            _send_error (request, response, "find_all", error, null);
         }
-	});
+    });
 }
 
 
 // Start of some functions used by the REST API
 //
+// Create standard error response
+function _send_error (request, response, _function, error_msg, query) {
+    var json_response = {
+        nodegraph: {
+            "status": "ERROR",
+        }
+    }
+    json_response ["nodegraph"] [_function] = {
+        "status": "ERROR",
+        "query": query,
+        "error": error_msg
+    };
+    response.json (json_response);
+}
+
 // Gets the XML at the specified url
-function get_xml_from_url (url_string, callback) {
+function _get_xml (url_string, callback) {
     parsed_url = url.parse (url_string);
     options = {
         hostname: parsed_url['hostname'],
@@ -196,13 +196,13 @@ function get_xml_from_url (url_string, callback) {
             callback (null, chunk);
         });
     }).on('error', function(error) {
-		console.error (error);
+        console.error (error);
         callback (error, null);
     });
 }
 
 // Parses the XML file into a JSON object
-function parse_xml (xml_string, callback) {
+function _parse_xml (xml_string, callback) {
     JSONparser.parseString(xml_string, function (error, ogRoot) {
         if (!error) {
             var ogHtml;
@@ -238,70 +238,70 @@ function parse_xml (xml_string, callback) {
                         }
                         callback (null, ogData);
                     } else {
-						console.error ("Unable to parse the XML file, no <meta> tag found.");
+                        console.error ("Unable to parse the XML file, no <meta> tag found.");
                         callback ("Unable to parse the XML file, no <meta> tag found.", null);
                     }
                 } else {
-					console.error ("Unable to parse the XML file, no <head> tag found.");
+                    console.error ("Unable to parse the XML file, no <head> tag found.");
                     callback ("Unable to parse the XML file, no <head> tag found.", null);
                 }
             } else {
-				console.error ("Unable to parse the XML file, no <html> tag found.");
+                console.error ("Unable to parse the XML file, no <html> tag found.");
                 callback ("Unable to parse the XML file, no <html> tag found.", null);
             }
         } else {
-			console.error (["Unable to parse the XML file. Reason: the XML file contains errors.", error.message]);
+            console.error (["Unable to parse the XML file. Reason: the XML file contains errors.", error.message]);
             callback (["Unable to parse the XML file. Reason: the XML file contains errors.", error.message], null);
         }
     });
 }
 
-function insert_from_json (json_object, callback) {
-	db_start (function (error, db) {
-		if (!error) {
-			db.collection("ogObject", {strict:true}, function(error, collection) {
-				if (!error) {
-					collection.update({"og:url": json_object["og:url"]}, json_object, {safe:true, upsert:true}, function(error, result) {
-						if (!error) {
-							collection.findOne({"og:url": json_object["og:url"]}, function(error, object_document) {
-								callback (null, object_document);
-							});
-						} else {
-							callback (error, null);
-						}
-					});
-				} else {
-					db.collection("ogObject", function(err, collection) {
-						collection.insert(json_object, {safe:true}, function(err, result) {
-							callback (null, result[0]);
-						});
-					});
-				}
-			});
-		} else {
-			callback (error, null);
-		}
-	});
+function _insert_document (json_object, callback) {
+    _db_start (function (error, db) {
+        if (!error) {
+            db.collection("ogObject", {strict:true}, function(error, collection) {
+                if (!error) {
+                    collection.update({"og:url": json_object["og:url"]}, json_object, {safe:true, upsert:true}, function(error, result) {
+                        if (!error) {
+                            collection.findOne({"og:url": json_object["og:url"]}, function(error, object_document) {
+                                callback (null, object_document);
+                            });
+                        } else {
+                            callback (error, null);
+                        }
+                    });
+                } else {
+                    db.collection("ogObject", function(err, collection) {
+                        collection.insert(json_object, {safe:true}, function(err, result) {
+                            callback (null, result[0]);
+                        });
+                    });
+                }
+            });
+        } else {
+            callback (error, null);
+        }
+    });
 }
 
 // Starts the MongoDB database client, using the native MongoDB driver
 // for Node.js
-function db_start (callback) {
-	if (server == undefined) {
-		server = new mongo.Server('localhost', 27017, {auto_reconnect: true});
-		db = new mongo.Db('nodegraphDB', server, {safe: true});
-		db.open(function(error, db) {
-			if(!error) {
-				console.log ("Connected to 'nodegraphDB' database");
-				callback (null, db);
-			} else {
-				console.error (["An error occured while trying to start/access the database client.", error], db);
-				callback (["An error occured while trying to start/access the database client.", error], db);
-			}
-		});
-	} else {
-		callback (null, db);
-	}
+function _db_start (callback) {
+    if (server == undefined) {
+        server = new mongo.Server('localhost', 27017, {auto_reconnect: true});
+        db = new mongo.Db('nodegraphDB', server, {safe: true});
+        db.open(function(error, db) {
+            if(!error) {
+                console.log ("Connected to 'nodegraphDB' database");
+                callback (null, db);
+            } else {
+                console.error (["An error occured while trying to start/access the database client.", error], db);
+                callback (["An error occured while trying to start/access the database client.", error], db);
+            }
+        });
+    } else {
+        callback (null, db);
+    }
 }
 
 // Exports defined functions so they can be used by the server
