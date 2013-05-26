@@ -7,7 +7,7 @@ The REST API implements the following methods:
 
 `GET /api` - Returns the status of the API.  
 `POST /api/check` - Checks the pages which are submitted via their URL for Open Graph tags.  
-`POST /api/insert` - Inserts a document in the MongoDB database.  
+`POST /api/insert` - Inserts and updates a document in the MongoDB database.  
 `POST /api/find` - Searches for some Open Graph objects from the MongoDB database.  
 `GET /api/find_all` - Searches for all the Open Graph objects from the MongoDB database.  
 
@@ -79,6 +79,11 @@ This function is responsible for inserting a document in the MongoDB database.
 The information will be fetched from the above mentioned URL, the meta tags of prefix "og" will be extracted,
 and stored in the MongoDB database, and returned in the form of a similar JSON object.
 
+If you only need to update a document, just use the insert method with the URL of the updated document.
+
+Although the `check` function returns the Open Graph information found at the URL, this function returns a mongoDB
+document.
+
 #####Parameters
 `url` - the URL of the page.
 
@@ -95,6 +100,7 @@ sample response:
       "status": "OK",
       "url": "http://example.org/page.html",
       "rested": {
+		"_id": DocumentId (),
         "og:title": "Page Title",
         "og:type": "website",
         "og:url": "http://example.org/page.html",
@@ -181,7 +187,7 @@ sample response:
 {
   "nodegraph": {
     "status": "OK",
-    "find": {
+    "find_all": {
       "status": "OK",
       "rested": [
         {
