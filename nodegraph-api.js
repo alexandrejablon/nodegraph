@@ -224,7 +224,7 @@ function _parse_xml (xml_string, callback) {
                         var ogData = {};
                         for (var n=0; n<ogMeta.length; n++) {
                             og_key_value = ogMeta[n]['$'];
-                            if (og_key_value["property"] != undefined && og_key_value["content"] != undefined && (og_key_value["property"].substr (0,3) == "og:" || og_key_value["property"].substr (0,3) == "ng:")) {
+                            if (og_key_value["property"] != undefined && og_key_value["content"] != undefined && (og_key_value["property"].substr (0,3) == "og:")) {
                                 if (ogData[og_key_value["property"]] != undefined) {
                                     if (ogData[og_key_value["property"]] instanceof Array) {
                                         ogData[og_key_value["property"]].push (og_key_value["content"]);
@@ -236,7 +236,12 @@ function _parse_xml (xml_string, callback) {
                                 }
                             }
                         }
-                        callback (null, ogData);
+                        if ((ogData ["og:title"] == undefined) || (ogData ["og:type"] == undefined) || (ogData ["og:url"] == undefined) || (ogData ["og:image"] == undefined)){
+                            console.error ("Some of the required properties for the Open Graph Protocol are not found.");
+                            callback ("Some of the required properties for the Open Graph Protocol are not found.");
+                        } else {
+                            callback (null, ogData);
+                        }
                     } else {
                         console.error ("Unable to parse the XML file, no <meta> tag found.");
                         callback ("Unable to parse the XML file, no <meta> tag found.", null);
