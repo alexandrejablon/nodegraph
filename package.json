@@ -1,6 +1,6 @@
 {
   "name": "nodegraph",
-  "description": "An Open Graph Protocol implementation with Node.js",
+  "description": "A REST API for the Open Graph Protocol using Node.js and MongoDB.",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
